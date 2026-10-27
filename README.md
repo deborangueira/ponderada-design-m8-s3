@@ -1,10 +1,4 @@
-# Ponderada de Design S3 — IA que continua útil quando erra
-
-**Aluna:** Débora Nogueira · **Módulo 8 · Projeto Atlas (DBSeller / e-Cidade) · Grupo Urbis (G03)**
-
-> **Rascunho (27/10/2026).** Justificativa (com evidências do demo), matriz e salvaguardas em versão inicial. As telas e o PDF ficam para depois do slide da S3 (sexta-feira). Os trechos marcados com [pendente] dependem disso.
-
----
+# Ponderada de Design: IA que continua útil quando erra
 
 ## 1. A funcionalidade e onde ela fica na jornada
 
