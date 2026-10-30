@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Telas · Ponderada S3</title>
+<link rel="stylesheet" href="../DS_govbr_completo/fontawesome-free-6/css/all.min.css">
+<link rel="stylesheet" href="../DS_govbr_completo/govbr-ds-core-3.7.0/dist/core.min.css">
+<style>
+@font-face{font-family:Rawline;font-weight:400;font-style:normal;src:url(../DS_govbr_completo/rawline-webfont/files/rawline-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:Rawline;font-weight:400;font-style:italic;src:url(../DS_govbr_completo/rawline-webfont/files/rawline-latin-400-italic.woff2) format("woff2")}
+@font-face{font-family:Rawline;font-weight:500;font-style:normal;src:url(../DS_govbr_completo/rawline-webfont/files/rawline-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:Rawline;font-weight:500;font-style:italic;src:url(../DS_govbr_completo/rawline-webfont/files/rawline-latin-500-italic.woff2) format("woff2")}
+@font-face{font-family:Rawline;font-weight:600;font-style:normal;src:url(../DS_govbr_completo/rawline-webfont/files/rawline-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:Rawline;font-weight:700;font-style:normal;src:url(../DS_govbr_completo/rawline-webfont/files/rawline-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Font Awesome 5 Free";font-weight:900;src:url(../DS_govbr_completo/fontawesome-free-6/webfonts/fa-solid-900.woff2) format("woff2")}
+
+/* ---------- Apresentação (fora do produto) ---------- */
+body{background:#eef0f2;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding:24px 16px 48px}
+.pick{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.pick .lbl{font-size:12px;font-weight:600;color:#636363;width:56px}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start;margin-top:20px}
+@media (max-width:900px){.stage{grid-template-columns:1fr}}
+.why{background:#fff;border-left:4px solid #e8613c;padding:16px 16px 4px;font-size:14px}
+.why dt{font-size:12px;font-weight:600;color:#636363;margin:0}
+.why dd{margin:2px 0 14px}
+
+/* ---------- O produto ---------- */
+.frame{background:#fff;border:1px solid #ccc;border-radius:6px;overflow:hidden}
+.legacy-bar{background:#3d6b98;color:#fff;font:600 13px/1 Arial,sans-serif;padding:10px 16px}
+.screen{padding:24px 32px 32px}
+.br-tag i{margin-right:6px}
+.br-tag.bg-warning,.br-tag.bg-gray-20{color:#1b1b1b}
+.line{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
+.line + .line{border-top:1px solid var(--gray-10)}
+.under{padding:0 0 12px}
+.under .br-message{margin:0}
+.sec{font-size:var(--font-size-scale-up-01);font-weight:600;margin:32px 0 8px}
+.foot{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:32px}
+.foot .note{margin-right:auto;color:var(--gray-60)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="pick" id="pickTela"><span class="lbl">Tela</span></div>
+  <div class="pick" id="pickEstado"><span class="lbl">Estado</span></div>
+  <div class="stage">
+    <div id="tela"></div>
+    <dl class="why" id="why"></dl>
+  </div>
+</div>
+
+<script>
+/* ---------- Peças do DS (marcação dos exemplos oficiais) ---------- */
+const ICON = {success:'fa-check-circle', warning:'fa-exclamation-triangle', danger:'fa-times-circle', info:'fa-info-circle'};
+const msg = (type, title, body = '', action = '') => `
+  <div class="br-message ${type}">
+    <div class="icon"><i class="fas ${ICON[type]} fa-lg" aria-hidden="true"></i></div>
+    <div class="content" role="${type === 'danger' || type === 'warning' ? 'alert' : 'status'}"><div>
+      <span class="message-title">${title}</span>${body ? `<span class="message-body"> ${body}</span>` : ''}
+      ${action ? `<div class="mt-2">${action}</div>` : ''}
+    </div></div>
+  </div>`;
+const tag = (bg, icon, text) => `<span class="br-tag ${bg} small"><i class="fas ${icon}" aria-hidden="true"></i><span>${text}</span></span>`;
+const btn = (kind, text, icon = '', dis = false) => `<button class="br-button ${kind} small" type="button" ${dis ? 'disabled' : ''}>${icon ? `<i class="fas ${icon}" aria-hidden="true"></i>` : ''}${text}</button>`;
+
+const PRONTO = tag('bg-success', 'fa-check', 'Pronto');
+const PEND = tag('bg-danger', 'fa-ban', 'Pendente');
+const CONF = tag('bg-warning', 'fa-question-circle', 'A confirmar');
+const SALVO = tag('bg-success', 'fa-check', 'Salvo');
+const NSALVO = tag('bg-gray-20', 'fa-redo', 'Não salvo');
+
+const line = (name, meta, right) => `<div class="line"><div><div class="text-weight-semi-bold">${name}</div>${meta ? `<div class="text-down-01 text-gray-60">${meta}</div>` : ''}</div><div class="d-flex align-items-center" style="gap:8px">${right}</div></div>`;
+
+/* ---------- Tela 1: Requisição de Exames (recepção) ---------- */
+function requisicao({top = '', busca = '', fb = '', resultados = '', lista = '', antesLista = '', salvar = 'primary'}) {
+  return `<div class="frame"><div class="legacy-bar">Requisição de Exames &gt; Lançar</div><div class="screen">
+    <h1 class="text-up-03 text-weight-semi-bold m-0">Requisição de exames</h1>
+    <p class="text-gray-60 mt-1 mb-4">Daiane Souza · solicitado por Dra. Marina Lopes</p>
+    ${top}
+    <div class="br-input ${fb ? 'info' : ''}">
+      <label for="b">Exame</label>
+      <div class="input-group"><div class="input-icon"><i class="fas fa-search" aria-hidden="true"></i></div>
+        <input id="b" type="text" value="${busca}" placeholder="Nome, sigla ou código"></div>
+      ${fb}
+    </div>
+    ${resultados ? `<div class="mt-2">${resultados}</div>` : ''}
+    <p class="sec">Exames nesta requisição</p>
+    ${antesLista}
+    ${lista || '<p class="text-gray-60">Nenhum exame adicionado.</p>'}
+    <div class="foot">${btn('', 'Cancelar')}${btn(salvar, 'Salvar requisição')}</div>
+  </div></div>`;
+}
+const HMG = line('Hemograma completo', 'Laboratório Central', SALVO);
+
+/* ---------- Tela 2: Cadastro de Exame (laboratório) ---------- */
+function cadastro({aviso, campo1, campo2, topo = '', vinculado = '', nota}) {
+  return `<div class="frame"><div class="legacy-bar">Exame &gt; Alteração</div><div class="screen">
+    <h1 class="text-up-03 text-weight-semi-bold m-0">Glicose jejum</h1>
+    <p class="text-gray-60 mt-1 mb-4">Exame · Laboratório Central</p>
+    ${aviso}
+    <div class="br-tab mt-3 mb-4"><nav class="tab-nav"><ul>${['Exame', 'Material', 'Procedimento', 'Setor'].map(n =>
+      `<li class="tab-item ${n === 'Procedimento' ? 'is-active' : ''}"><button type="button"><span class="name">${n}</span></button></li>`).join('')}</ul></nav></div>
+    ${topo}
+    <div class="row"><div class="col-sm-8 mb-3">${campo1}</div><div class="col-sm-4 mb-3">${campo2}</div></div>
+    ${vinculado}
+    <div class="foot"><span class="note text-down-01">${nota}</span>${btn('', 'Cancelar')}${btn('primary', 'Incluir procedimento')}</div>
+  </div></div>`;
+}
+const field = (id, label, value, state = '', fb = '', icon = '') => `
+  <div class="br-input ${state}"><label for="${id}">${label}</label>
+    ${icon ? `<div class="input-group"><div class="input-icon"><i class="fas ${icon}" aria-hidden="true"></i></div>` : ''}
+    <input id="${id}" type="text" value="${value}" placeholder="">${icon ? '</div>' : ''}
+    ${fb ? `<span class="feedback ${state}" role="alert"><i class="fas ${ICON[state]}" aria-hidden="true"></i>${fb}</span>` : ''}
+  </div>`;
+const AVISO_FALTA = msg('warning', 'Ainda não aparece para a recepção.', 'Falta vincular o procedimento SIGTAP.');
+
+/* ---------- Os estados ---------- */
+const TELAS = {
+ requisicao: { nome: 'Requisição (recepção)', estados: [
+  { id:'sucesso', nome:'Sucesso', ds:'Mensagem de sucesso', tipo:'—',
+    origem:'Fluxo normal da etapa 5 do to-be.',
+    faz:'Confirma o que entrou na requisição e libera a busca para o próximo exame.',
+    html: requisicao({ top: msg('success', 'Hemograma completo adicionado.', 'Coleta em 31/10.'), lista: HMG }) },
+  { id:'atencao', nome:'Atenção', ds:'Mensagem de atenção', tipo:'Contexto: o dado pode estar desatualizado',
+    origem:'Risco "janela de atraso" do to-be (etapa 6): o Serviço de Prontidão reavalia de tempos em tempos.',
+    faz:'Diz por que não tem certeza e onde conferir. Recomenda verificar de novo; adicionar mesmo assim fica como opção secundária.',
+    html: requisicao({ busca:'TSH',
+      resultados: line('TSH', 'Laboratório Central', CONF + btn('', 'Adicionar mesmo assim')) +
+        `<div class="under">${msg('warning', 'A disponibilidade pode ter mudado.', 'O cadastro do TSH foi alterado depois da última verificação (14h05).', btn('secondary', 'Verificar agora', 'fa-sync-alt'))}</div>`,
+      lista: HMG }) },
+  { id:'erro', nome:'Erro', ds:'Mensagem de erro, junto ao exame', tipo:'Contexto: o sistema esconde o exame sem avisar',
+    origem:'P1 da S2 (H9 e H1, severidade 4), cruzamento X3. Hoje a tela responde "Nenhum Registro Retornado".',
+    faz:'Mostra o exame bloqueado, o motivo e quem resolve. Não perde o que já foi adicionado e deixa seguir com os outros exames.',
+    html: requisicao({ busca:'Glicose',
+      resultados: line('Glicose jejum', 'Laboratório Central', PEND + btn('secondary', 'Adicionar', '', true)) +
+        `<div class="under">${msg('danger', 'Não pode ser requisitado agora.', 'Falta o procedimento SIGTAP no cadastro. O Laboratório Central já foi avisado.')}</div>` +
+        line('Glicose pós-prandial', 'Laboratório Central', PRONTO + btn('secondary', 'Adicionar')),
+      lista: HMG }) },
+  { id:'informacao', nome:'Informação', ds:'Mensagem de informação', tipo:'Sistema: uma parte funcionou, outra não',
+    origem:'Convivência legado + serviço (to-be, etapa 5) e PS6 do ATAM: cada gravação é separada.',
+    faz:'Diz quantos foram salvos e quais faltam. O botão principal tenta só os que faltaram, sem recomeçar.',
+    html: requisicao({ salvar:'secondary',
+      antesLista: msg('info', '3 de 5 exames salvos.', 'TSH e Creatinina não foram salvos porque o Laboratório não respondeu.', btn('primary', 'Tentar os 2 de novo', 'fa-redo')),
+      lista: HMG + line('Glicose pós-prandial', 'Laboratório Central', SALVO) + line('Colesterol HDL', 'Laboratório Central', SALVO) +
+             line('TSH', 'Laboratório Central', NSALVO) + line('Creatinina', 'Laboratório Central', NSALVO) }) },
+  { id:'indisponivel', nome:'Indisponível', ds:'Mensagem de erro, no topo', tipo:'Sistema: o serviço caiu',
+    origem:'Risco do to-be (etapa 5): "se o serviço cair, a requisição precisa de um modo degradado".',
+    faz:'Avisa o que não funciona agora e que nada foi perdido. A busca continua no modo antigo, mas nenhum exame é marcado "Pronto" sem verificação.',
+    html: requisicao({ top: msg('danger', 'Não conseguimos verificar os exames agora.', 'A busca está no modo antigo e não mostra pendências. Sua requisição continua salva aqui.', btn('secondary', 'Tentar de novo', 'fa-sync-alt')) + '<div class="mb-3"></div>',
+      busca:'Hemograma', resultados: line('Hemograma completo', 'Laboratório Central', btn('secondary', 'Adicionar')) }) },
+ ]},
+ cadastro: { nome: 'Cadastro (laboratório) · ir além', estados: [
+  { id:'validar', nome:'Erro no campo', ds:'Mensagem contextual de erro', tipo:'Entrada: o código digitado não existe',
+    origem:'P2 da S2 (H5, severidade 3): o exame fica ativo antes de estar completo. ATAM §5.2.3: falta validar ao ativar.',
+    faz:'Avisa no próprio campo, enquanto a pessoa digita, o que está errado e como corrigir. Nada é apagado.',
+    html: cadastro({ aviso: AVISO_FALTA,
+      campo1: field('p', 'Procedimento SIGTAP', '0202010470', 'danger', 'Esse código não existe na competência 10/2026. Confira os dígitos.', 'fa-search'),
+      campo2: field('d', 'Início', '01/11/2026'), nota: 'Rascunho salvo às 14h31' }) },
+  { id:'incluir', nome:'Erro ao incluir', ds:'Mensagem de erro + contextual', tipo:'Entrada: campos inválidos',
+    origem:'Mesmo P2: hoje o legado aceita o exame incompleto sem aviso.',
+    faz:'Diz que o procedimento não foi incluído e quais campos corrigir. Mantém o que foi digitado.',
+    html: cadastro({ aviso: AVISO_FALTA,
+      topo: msg('danger', 'Procedimento não incluído.', 'Corrija os 2 campos marcados.') + '<div class="mb-3"></div>',
+      campo1: field('p', 'Procedimento SIGTAP', 'dosagem glicose', 'danger', 'Mais de um procedimento encontrado. Escolha um da lista.', 'fa-search'),
+      campo2: field('d', 'Início', '31/02/2026', 'danger', 'Data inválida.'), nota: 'Rascunho salvo às 14h33' }) },
+  { id:'pronto', nome:'Sucesso', ds:'Mensagem de sucesso', tipo:'—',
+    origem:'Fecha o ciclo com a tela 1: a recepção passa a encontrar o exame.',
+    faz:'Confirma que o exame está pronto e diz o efeito para quem depende dele (a recepção).',
+    html: cadastro({ aviso: msg('success', 'Pronto para requisitar.', 'A recepção já encontra este exame.'),
+      campo1: field('p', 'Procedimento SIGTAP', '', '', '', 'fa-search'), campo2: field('d', 'Início', ''),
+      vinculado: `<p class="sec">Procedimento vinculado</p>` + line('0202010473 · Dosagem de glicose', 'Desde 01/11/2026', tag('bg-success', 'fa-check', 'Ativo')),
+      nota: 'Salvo às 14h36' }) },
+ ]},
+};
+
+/* ---------- Navegação ---------- */
+let atual = {tela: 'requisicao', estado: 0};
+function draw() {
+  const t = TELAS[atual.tela], e = t.estados[atual.estado];
+  document.getElementById('pickTela').innerHTML = '<span class="lbl">Tela</span>' + Object.entries(TELAS).map(([k, v]) =>
+    `<button class="br-button small ${k === atual.tela ? 'primary' : 'secondary'}" onclick="atual={tela:'${k}',estado:0};draw()">${v.nome}</button>`).join('');
+  document.getElementById('pickEstado').innerHTML = '<span class="lbl">Estado</span>' + t.estados.map((s, i) =>
+    `<button class="br-button small ${i === atual.estado ? 'primary' : 'secondary'}" onclick="atual.estado=${i};draw()">${s.nome}</button>`).join('');
+  document.getElementById('tela').innerHTML = e.html;
+  document.getElementById('why').innerHTML = `
+    <dt>Componente do DS</dt><dd>${e.ds}</dd>
+    <dt>Tipo de erro</dt><dd>${e.tipo}</dd>
+    <dt>De onde vem</dt><dd>${e.origem}</dd>
+    <dt>O que a tela faz</dt><dd>${e.faz}</dd>`;
+}
+const h = location.hash.slice(1).split('/');
+if (TELAS[h[0]]) atual = {tela: h[0], estado: Math.max(0, TELAS[h[0]].estados.findIndex(s => s.id === h[1]))};
+draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "id": "rawline",
+  "family": "Rawline",
+  "subsets": ["cyrillic", "cyrillic-ext", "latin", "latin-ext", "vietnamese"],
+  "weights": [100, 200, 300, 400, 500, 600, 700, 800, 900],
+  "styles": ["normal", "italic"],
+  "defSubset": "latin",
+  "variable": {
+    "ital": {"default": "0", "min": "0", "max": "1", "step": "1"},
+    "wght": {"default": "400", "min": "100", "max": "900", "step": "1"}
+  },
+  "lastModified": "2026-05-20",
+  "version": "v1.0",
+  "category": "sans-serif",
+  "license": {
+    "type": "OFL-1.1",
+    "url": "https://openfontlicense.org",
+    "attribution": "Copyright (c) 2010 - 2013, Matt McInerney (matt@pixelspread.com), Pablo Impallari (impallari@gmail.com), Rodrigo Fuenzalida (hello@rfuenzalida.com) with Reserved Font Name RALEWAY. Copyright (c) 2016, Henrique Ibaldo (hi@ibaldo.co), with Reserved Font Name RAWLINE."
+  },
+  "source": "https://github.com/h-ibaldo/Rawline_Fixed_Numerals",
+  "type": "other"
+}

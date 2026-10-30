@@ -1,0 +1,22 @@
+@import "mixins";
+
+.loading, // TODO: Esta linha mantém compatibilidade com versão anterior. Remover na proxima release!
+.#{$prefix}loading {
+  @include loading-configs;
+}
+
+/* Centraliza o estado de loading quando aplicado ao body da modal */
+.#{$prefix}modal-body.loading {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-scale-base);
+  justify-content: center;
+  min-height: 160px;
+  text-align: center;
+  width: 100%;
+}
+
+.#{$prefix}modal-body.loading::before {
+  display: block;
+}

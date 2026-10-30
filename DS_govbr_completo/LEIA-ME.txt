@@ -1,0 +1,14 @@
+Padrão Digital de Governo (DS gov.br) - pacote em código
+
+govbr-ds-core-3.7.0/   Pacote oficial @govbr-ds/core 3.7.0 (npm)
+  dist/core.min.css      estilos, tokens e componentes
+  dist/core.min.js       comportamento dos componentes (sem inicialização automática)
+  dist/core-init.min.js  mesma coisa, inicializando tudo sozinho
+  dist/core-tokens.css   só os tokens (cores, espaçamento, tipografia)
+  dist/components/<nome>/examples/   exemplos HTML de cada componente
+  dist/components/<nome>/examples.html  página com todos os exemplos do componente
+  dist/templates/        templates (base, erro)
+fontawesome-free-6/    ícones Font Awesome 6 (o DS usa)
+rawline-webfont/       fonte Rawline (fonte padrão do DS)
+
+O arquivo de design (UI Kit) não faz parte deste pacote: baixe em https://www.gov.br/ds/downloads
