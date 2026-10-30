@@ -57,7 +57,7 @@ A tela é a **etapa 5, "Recepção requisita"**, do blueprint to-be da S2:
 
 Esta é a parte central da ponderada. Uma mesma tela pode estar em situações bem diferentes: tudo deu certo, o sistema não tem certeza, o sistema errou, só uma parte funcionou, ou o serviço caiu. Para cada uma dessas situações, chamadas aqui de **estados**, descrevo o que aconteceu, de onde vem o problema, o que a tela diz para o usuário, o que ela preserva do que ele já fez e como ele consegue seguir com o trabalho.
 
-Os três tipos de erro vêm do Google PAIR, adaptados no slide: **sistema** (não responde ou responde mal), **entrada** (a entrada não permite resposta útil) e **contexto** (o sistema presume algo errado sobre a situação). Cada estado usa um dos quatro tipos de **Mensagem do DS gov.br**: sucesso, atenção, erro e informação.
+Os três tipos de erro vêm do Google PAIR, adaptados no slide: **sistema** (não responde ou responde mal), **entrada** (a entrada não permite resposta útil) e **contexto** (o sistema presume algo errado sobre a situação). Cada estado usa um dos quatro tipos de **Mensagem do DS gov.br**: sucesso, atenção, erro e informação. E todo alerta aparece **sempre no mesmo lugar**: logo abaixo do título da tela, antes de qualquer campo. Assim a pessoa aprende onde olhar e não precisa procurar a mensagem pela tela.
 
 ### 2.1 Resumo
 
@@ -65,9 +65,9 @@ Os três tipos de erro vêm do Google PAIR, adaptados no slide: **sistema** (nã
 |---|---|---|---|
 | Sucesso | Sucesso | — | Fluxo normal, etapa 5 do to-be |
 | Atenção (incerteza) | Atenção | Contexto | Risco "janela de atraso" do to-be (etapa 6) · PS3/PS8 do ATAM |
-| Erro | Erro, junto ao exame | Contexto | **P1** · cruzamento X3 · §5.2.3 e §5.2.4 do ATAM |
+| Erro | Erro | Contexto | **P1** · cruzamento X3 · §5.2.3 e §5.2.4 do ATAM |
 | Informação (falha parcial) | Informação | Sistema | Convivência legado + serviço (to-be, etapa 5) · PS6 do ATAM |
-| Indisponível | Erro, no topo | Sistema | Risco "se o serviço cair, modo degradado" do to-be (etapa 5) |
+| Indisponível | Erro | Sistema | Risco "se o serviço cair, modo degradado" do to-be (etapa 5) |
 
 ### 2.2 Cada estado
 
@@ -79,7 +79,7 @@ Os três tipos de erro vêm do Google PAIR, adaptados no slide: **sistema** (nã
 **Atenção (incerteza)**
 - **O que aconteceu:** o Serviço de Prontidão reavalia os exames de tempos em tempos, porque o legado não avisa quando algo muda. O cadastro do TSH mudou depois da última verificação, então a informação "pronto" pode estar desatualizada.
 - **Tipo:** contexto. O sistema mostraria como certo um dado que talvez já não valha.
-- **O que a tela diz:** "A disponibilidade pode ter mudado. O cadastro do TSH foi alterado depois da última verificação (14h05)."
+- **O que a tela diz:** "A disponibilidade do TSH pode ter mudado. O cadastro foi alterado depois da última verificação (14h05)."
 - **O que preserva:** tudo o que já foi adicionado.
 - **Como segue:** o botão em destaque é "Verificar agora"; "Adicionar mesmo assim" fica como opção secundária.
 - **Regra do slide:** a incerteza diz por que é incerta e o que conferir, em vez de só "dado provisório".
@@ -87,7 +87,7 @@ Os três tipos de erro vêm do Google PAIR, adaptados no slide: **sistema** (nã
 **Erro**
 - **O que aconteceu:** o exame existe e está ativo, mas não cumpre uma das condições de prontidão (Glicose jejum está sem procedimento SIGTAP). Hoje o filtro simplesmente o esconde (P1).
 - **Tipo:** contexto. O sistema aplica uma regra sem avisar, e a recepção conclui que o exame "não existe".
-- **O que a tela diz, junto ao exame:** "Não pode ser requisitado agora. Falta o procedimento SIGTAP no cadastro. O Laboratório Central já foi avisado."
+- **O que a tela diz:** "Glicose jejum não pode ser requisitado agora. Falta o procedimento SIGTAP no cadastro. O Laboratório Central já foi avisado."
 - **O que preserva:** paciente, solicitante e os exames já adicionados.
 - **Como segue:** o exame aparece com a tag "Pendente" e o botão desabilitado; os outros resultados continuam disponíveis. A recepção não precisa descobrir a causa nem abrir chamado.
 
@@ -101,7 +101,7 @@ Os três tipos de erro vêm do Google PAIR, adaptados no slide: **sistema** (nã
 **Indisponível**
 - **O que aconteceu:** o Serviço de Prontidão não responde. A busca volta ao filtro antigo, que é o plano B do strangler fig.
 - **Tipo:** sistema.
-- **O que a tela diz, no topo:** "Não conseguimos verificar os exames agora. A busca está no modo antigo e não mostra pendências. Sua requisição continua salva aqui."
+- **O que a tela diz:** "Não conseguimos verificar os exames agora. A busca está no modo antigo e não mostra pendências. Sua requisição continua salva aqui."
 - **O que preserva:** a requisição em andamento.
 - **Como segue:** continua buscando e adicionando, ou clica em "Tentar de novo".
 - **Limite (degradação graciosa):** nenhum exame recebe a tag "Pronto" sem verificação. Degradar não é fingir que funciona.
@@ -118,8 +118,8 @@ Depois de decidir o que a tela precisa dizer em cada estado, faltava decidir com
 
 | Componente do DS | Onde aparece | Por que este |
 |---|---|---|
-| **Mensagem** (`br-message`): sucesso, atenção, erro e informação | Em todos os estados | É o componente do DS para comunicar o resultado de uma ação ou o estado de uma área. Fica **perto do que explica**: junto ao exame no erro e na atenção, acima da lista na falha parcial e no topo da tela quando o problema afeta tudo (indisponível) |
-| **Mensagem contextual** (`feedback`) | Campos do cadastro com erro | Quando o problema está na entrada, a mensagem fica dentro do campo, como no exemplo oficial |
+| **Mensagem** (`br-message`): sucesso, atenção, erro e informação | Em todos os estados | É o componente do DS para comunicar o resultado de uma ação ou o estado de uma área. Fica **sempre no mesmo lugar**, logo abaixo do título, em todos os estados das duas telas. Quando há duas mensagens, o resultado da ação vem primeiro e o aviso permanente depois |
+| **Estado de erro do campo** (`br-input danger`) | Campos do cadastro com erro | O campo fica com a borda vermelha e o rótulo ganha "(corrigir)", para a pessoa achar onde mexer. O texto do erro fica no alerta do topo, e não embaixo do campo, para manter um lugar só para os alertas |
 | **Tag** (`br-tag`, densidade pequena) | Situação de cada exame: Pronto, Pendente, A confirmar, Salvo, Não salvo, Ativo | Mostra um estado curto de um item, sem ação |
 | **Botão** (`br-button`) primário, secundário e terciário | Salvar, Tentar de novo, Verificar agora, Adicionar, Cancelar | O DS define a ênfase pela hierarquia da ação. **Um primário por vez**: na falha parcial, "Tentar os 2 de novo" vira o primário e "Salvar requisição" passa a secundário |
 | **Input com ícone** (`br-input`) | Busca de exame e campos do cadastro | Campo padrão, com rótulo visível |
@@ -132,6 +132,7 @@ Cada estado é reconhecível sem cor: as mensagens têm ícone próprio (✓, �
 ### 3.3 Estrutura, espaço e hierarquia
 
 - **Uma coluna, de cima para baixo:** título, quem é o paciente, busca, resultados, exames da requisição e botões. É a ordem em que a recepção trabalha, então a tela não precisa de painéis laterais nem de caixas extras.
+- **Um lugar só para os alertas:** toda mensagem aparece logo abaixo do título, nas duas telas e em todos os estados. O item ou campo com problema é marcado no próprio lugar (tag ou borda vermelha), mas a explicação fica sempre no mesmo ponto.
 - **Pouca informação de cada vez:** cada exame mostra só nome, laboratório e situação. O resto não ajuda a decidir na hora.
 - **Hierarquia pelas classes do DS:** título da tela com `text-up-03` em semibold, subtítulo em semibold, metadados em cinza (`text-gray-60`) e menores (`text-down-01`).
 - **Espaçamento em múltiplos de 8 px**, com as classes utilitárias do DS (`mt-*`, `mb-*`) e 32 px separando os blocos principais.
@@ -143,7 +144,7 @@ Cada estado é reconhecível sem cor: as mensagens têm ícone próprio (✓, �
 |---|---|
 | Não há tag de **status com texto** para "Pronto / Pendente": a tag "status" do DS é só um ponto colorido | Usei a tag de texto com as cores de feedback do próprio DS e ícone, para não depender da cor |
 | Não há cor **neutra** para "Não salvo" | Tag cinza com ícone. Não usei vermelho porque não é erro do exame, e não usei verde porque não foi confirmado |
-| Não há padrão para **item bloqueado com motivo** | Compus: linha com tag "Pendente" e botão desabilitado, e a Mensagem de erro logo abaixo, como o slide pede ("junto à linha com problema") |
+| Não há padrão para **item bloqueado com motivo** | O item aparece na lista com a tag "Pendente" e o botão desabilitado, e o motivo vai para o alerta do topo, que cita o exame pelo nome. O slide sugere a mensagem "junto à linha com problema"; preferi a consistência de um lugar só para os alertas, e a tag faz a ligação visual com a linha |
 | Não há componente de **estado de salvamento** ("Rascunho salvo às 14h31") | Texto pequeno em cinza junto aos botões, sem componente novo |
 
 ## 4. Telas
@@ -154,9 +155,9 @@ Esta seção mostra o resultado visual: a tela de Requisição de Exames em cada
 |---|---|
 | Sucesso · Mensagem de sucesso | ![](telas/prints/requisicao-sucesso.png) |
 | Atenção · Mensagem de atenção · tipo contexto | ![](telas/prints/requisicao-atencao.png) |
-| Erro · Mensagem de erro junto ao exame · tipo contexto | ![](telas/prints/requisicao-erro.png) |
+| Erro · Mensagem de erro · tipo contexto | ![](telas/prints/requisicao-erro.png) |
 | Informação · Mensagem de informação · tipo sistema | ![](telas/prints/requisicao-informacao.png) |
-| Indisponível · Mensagem de erro no topo · tipo sistema | ![](telas/prints/requisicao-indisponivel.png) |
+| Indisponível · Mensagem de erro · tipo sistema | ![](telas/prints/requisicao-indisponivel.png) |
 
 Dados de demonstração, fictícios.
 
@@ -173,6 +174,7 @@ As telas foram construídas com ajuda de IA, e a IA erra: às vezes usa um compo
 | Coluna `col-lg` do grid, que no DS só começa em 1280 px | O painel lateral caía para baixo da tela em telas comuns | Removido junto com as duas colunas |
 | Botões primários demais na mesma tela | Com vários, o usuário não sabe qual é o próximo passo | Um primário por vez |
 | Busca por "glicose" sugerindo "Glicemia capilar" como alternativa pronta | Sugeria à recepção trocar um exame por outro, que é decisão clínica, não dela | Trocado por "Glicose pós-prandial", e a mensagem não sugere substituto |
+| Alertas em lugares diferentes conforme o estado (junto ao exame, acima da lista, dentro do campo, no topo) | A pessoa precisava procurar a mensagem a cada situação | Todo alerta foi para o mesmo lugar, abaixo do título; o item ou campo com problema só fica marcado |
 | Mensagens longas, com horário, ramal e caminho de menu | A pessoa precisa ler demais para entender o que fazer | Mensagens de uma ou duas frases: o que aconteceu e o que fazer |
 
 
@@ -195,11 +197,11 @@ A tela principal trata o momento em que o problema é **descoberto**, na recepç
 
 | Estado | Mensagem do DS | O que a tela diz | Imagem |
 |---|---|---|---|
-| Erro no campo | Mensagem contextual de erro | No próprio campo, enquanto digita: "Esse código não existe na competência 10/2026. Confira os dígitos." | ![](telas/prints/cadastro-validar.png) |
-| Erro ao incluir | Mensagem de erro + contextuais | "Procedimento não incluído. Corrija os 2 campos marcados." Cada campo diz o que está errado, e nada do que foi digitado é apagado | ![](telas/prints/cadastro-incluir.png) |
+| Erro no campo | Mensagem de erro + campo marcado | Enquanto a pessoa digita: "Código SIGTAP não encontrado. O código 0202010470 não existe na competência 10/2026. Confira os dígitos." | ![](telas/prints/cadastro-validar.png) |
+| Erro ao incluir | Mensagem de erro + campos marcados | "Procedimento não incluído. Procedimento SIGTAP: mais de um encontrado, escolha um da lista. Início: data inválida." Os dois campos ficam marcados, e nada do que foi digitado é apagado | ![](telas/prints/cadastro-incluir.png) |
 | Sucesso | Mensagem de sucesso | "Pronto para requisitar. A recepção já encontra este exame." | ![](telas/prints/cadastro-pronto.png) |
 
-Nos dois estados de erro, o topo da tela mantém o aviso de atenção "Ainda não aparece para a recepção. Falta vincular o procedimento SIGTAP.", que é o elemento do to-be que liga o cadastro à tela principal.
+Nos dois estados de erro, logo abaixo do alerta de erro, a tela mantém o aviso de atenção "Ainda não aparece para a recepção. Falta vincular o procedimento SIGTAP.", que é o elemento do to-be que liga o cadastro à tela principal.
 
 **As tratativas do slide "Formulários complexos":** validar durante (erro no campo), erro que preserva (erro ao incluir), estado de salvamento ("Rascunho salvo às 14h31") e contexto visível (o aviso de prontidão no topo).
 
