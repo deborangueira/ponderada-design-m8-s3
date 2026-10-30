@@ -148,7 +148,7 @@ Cada estado é reconhecível sem cor: as mensagens têm ícone próprio (✓, �
 
 ## 4. Telas
 
-Esta seção mostra o resultado visual: a tela de Requisição de Exames em cada um dos estados descritos na seção 2. Na versão navegável (`telas/telas.html`), cada estado vem com um quadro ao lado que explica o componente do DS, o tipo de erro, de onde vem e o que a tela faz.
+Esta seção mostra o resultado visual: a tela de Requisição de Exames em cada um dos estados descritos na seção 2. As imagens estão no tamanho de uma tela de computador (1440 × 900), com a moldura do e-Cidade em volta: barra do usuário, título da janela, rodapé com instituição e departamento e o botão MENU. Na versão navegável (`telas/telas.html`), cada estado vem com um quadro ao lado que explica o componente do DS, o tipo de erro, de onde vem e o que a tela faz.
 
 | Estado | Imagem |
 |---|---|

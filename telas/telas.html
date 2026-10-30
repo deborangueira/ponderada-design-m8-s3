@@ -17,19 +17,32 @@
 
 /* ---------- Apresentação (fora do produto) ---------- */
 body{background:#eef0f2;margin:0}
-.wrap{max-width:1120px;margin:0 auto;padding:24px 16px 48px}
+.wrap{max-width:1480px;margin:0 auto;padding:24px 16px 48px}
 .pick{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
 .pick .lbl{font-size:12px;font-weight:600;color:#636363;width:56px}
-.stage{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start;margin-top:20px}
-@media (max-width:900px){.stage{grid-template-columns:1fr}}
-.why{background:#fff;border-left:4px solid #e8613c;padding:16px 16px 4px;font-size:14px}
+.stage{margin-top:20px}
+.viewport{width:100%;overflow:hidden}
+.why{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 24px;background:#fff;border-left:4px solid #e8613c;padding:16px 16px 4px;font-size:14px;margin:16px 0 0}
+@media (max-width:900px){.why{grid-template-columns:1fr 1fr}}
+.why div{min-width:0}
+/* modo print: só a tela, em 1440 x 900 */
+body.print{background:#fff}
+body.print .wrap{max-width:none;padding:0}
+body.print .pick,body.print .why{display:none}
+body.print .stage{margin:0}
 .why dt{font-size:12px;font-weight:600;color:#636363;margin:0}
 .why dd{margin:2px 0 14px}
 
 /* ---------- O produto ---------- */
-.frame{background:#fff;border:1px solid #ccc;border-radius:6px;overflow:hidden}
-.legacy-bar{background:#3d6b98;color:#fff;font:600 13px/1 Arial,sans-serif;padding:10px 16px}
-.screen{padding:24px 32px 32px}
+/* Tela de computador: 1440 x 900, com a moldura do e-Cidade (barra do usuário, janela, rodapé e menu) */
+.frame{width:1440px;height:900px;background:#fff;border:1px solid #ccc;overflow:hidden;display:flex;flex-direction:column;transform-origin:0 0}
+body.print .frame{border:0}
+.topbar{height:40px;flex:none;display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:0 20px;background:#fff;border-bottom:1px solid #e6e6e6;font:13px Arial,sans-serif;color:#1351b4}
+.legacy-bar{flex:none;background:#3d6b98;color:#fff;font:600 13px/1 Arial,sans-serif;padding:10px 16px}
+.screen{flex:1;overflow:auto;padding:24px 56px}
+.screen-in{max-width:960px;margin:0 auto}
+.status{flex:none;display:flex;justify-content:space-between;padding:6px 16px;background:#f3f3f3;border-top:1px solid #e0e0e0;font:12px Arial,sans-serif;color:#555}
+.taskbar{flex:none;height:32px;background:#3d6b98;color:#fff;font:600 13px/32px Arial,sans-serif;padding:0 20px}
 .br-tag i{margin-right:6px}
 .br-tag.bg-warning,.br-tag.bg-gray-20{color:#1b1b1b}
 .line{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
@@ -46,7 +59,7 @@ body{background:#eef0f2;margin:0}
   <div class="pick" id="pickTela"><span class="lbl">Tela</span></div>
   <div class="pick" id="pickEstado"><span class="lbl">Estado</span></div>
   <div class="stage">
-    <div id="tela"></div>
+    <div class="viewport"><div id="tela"></div></div>
     <dl class="why" id="why"></dl>
   </div>
 </div>
@@ -73,9 +86,11 @@ const NSALVO = tag('bg-gray-20', 'fa-redo', 'Não salvo');
 
 const line = (name, meta, right) => `<div class="line"><div><div class="text-weight-semi-bold">${name}</div>${meta ? `<div class="text-down-01 text-gray-60">${meta}</div>` : ''}</div><div class="d-flex align-items-center" style="gap:8px">${right}</div></div>`;
 
+const TOP = `<div class="topbar"><i class="fas fa-comment-alt" aria-hidden="true"></i><span>user_demo</span><i class="fas fa-user" aria-hidden="true"></i></div>`;
+const STATUS_ = dep => `<div class="status"><span>Instituição: 1 - PREFEITURA DBSELLER · Departamento: ${dep}</span><span>Data: 30/10/2026 · Exercício: 2026</span></div><div class="taskbar">MENU</div>`;
 /* ---------- Tela 1: Requisição de Exames (recepção) ---------- */
 function requisicao({top = '', busca = '', fb = '', resultados = '', lista = '', antesLista = '', salvar = 'primary'}) {
-  return `<div class="frame"><div class="legacy-bar">Requisição de Exames &gt; Lançar</div><div class="screen">
+  return `<div class="frame">${TOP}<div class="legacy-bar">Requisição de Exames &gt; Lançar</div><div class="screen"><div class="screen-in">
     <h1 class="text-up-03 text-weight-semi-bold m-0">Requisição de exames</h1>
     <p class="text-gray-60 mt-1 mb-4">Daiane Souza · solicitado por Dra. Marina Lopes</p>
     ${top}
@@ -90,13 +105,13 @@ function requisicao({top = '', busca = '', fb = '', resultados = '', lista = '',
     ${antesLista}
     ${lista || '<p class="text-gray-60">Nenhum exame adicionado.</p>'}
     <div class="foot">${btn('', 'Cancelar')}${btn(salvar, 'Salvar requisição')}</div>
-  </div></div>`;
+  </div></div>${STATUS_('Recepção · UBS Centro')}</div>`;
 }
 const HMG = line('Hemograma completo', 'Laboratório Central', SALVO);
 
 /* ---------- Tela 2: Cadastro de Exame (laboratório) ---------- */
 function cadastro({aviso, campo1, campo2, topo = '', vinculado = '', nota}) {
-  return `<div class="frame"><div class="legacy-bar">Exame &gt; Alteração</div><div class="screen">
+  return `<div class="frame">${TOP}<div class="legacy-bar">Exame &gt; Alteração</div><div class="screen"><div class="screen-in">
     <h1 class="text-up-03 text-weight-semi-bold m-0">Glicose jejum</h1>
     <p class="text-gray-60 mt-1 mb-4">Exame · Laboratório Central</p>
     ${aviso}
@@ -106,7 +121,7 @@ function cadastro({aviso, campo1, campo2, topo = '', vinculado = '', nota}) {
     <div class="row"><div class="col-sm-8 mb-3">${campo1}</div><div class="col-sm-4 mb-3">${campo2}</div></div>
     ${vinculado}
     <div class="foot"><span class="note text-down-01">${nota}</span>${btn('', 'Cancelar')}${btn('primary', 'Incluir procedimento')}</div>
-  </div></div>`;
+  </div></div>${STATUS_('Laboratório Central')}</div>`;
 }
 const field = (id, label, value, state = '', fb = '', icon = '') => `
   <div class="br-input ${state}"><label for="${id}">${label}</label>
@@ -185,11 +200,20 @@ function draw() {
     `<button class="br-button small ${i === atual.estado ? 'primary' : 'secondary'}" onclick="atual.estado=${i};draw()">${s.nome}</button>`).join('');
   document.getElementById('tela').innerHTML = e.html;
   document.getElementById('why').innerHTML = `
-    <dt>Componente do DS</dt><dd>${e.ds}</dd>
-    <dt>Tipo de erro</dt><dd>${e.tipo}</dd>
-    <dt>De onde vem</dt><dd>${e.origem}</dd>
-    <dt>O que a tela faz</dt><dd>${e.faz}</dd>`;
+    <div><dt>Componente do DS</dt><dd>${e.ds}</dd></div>
+    <div><dt>Tipo de erro</dt><dd>${e.tipo}</dd></div>
+    <div><dt>De onde vem</dt><dd>${e.origem}</dd></div>
+    <div><dt>O que a tela faz</dt><dd>${e.faz}</dd></div>`;
+  fit();
 }
+/* A tela tem 1440 x 900; na página ela é reduzida para caber na largura disponível */
+function fit() {
+  const f = document.querySelector('#tela .frame'); if (!f) return;
+  if (document.body.classList.contains('print')) { f.style.zoom = 1; return; }
+  f.style.zoom = Math.min(1, document.querySelector('.viewport').clientWidth / 1440);
+}
+window.addEventListener('resize', fit);
+if (new URLSearchParams(location.search).has('print')) document.body.classList.add('print');
 const h = location.hash.slice(1).split('/');
 if (TELAS[h[0]]) atual = {tela: h[0], estado: Math.max(0, TELAS[h[0]].estados.findIndex(s => s.id === h[1]))};
 draw();
